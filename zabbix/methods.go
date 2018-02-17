@@ -10,17 +10,17 @@ import (
 
 func NewZabbix(url string) (Zabbix) {
 	//Zabbix type consctructor with authentication
-	z := Zabbix{url,"","1"}
+	z := Zabbix{url,nil,1}
 	return z
 }
 
-func (z *Zabbix) ZRequest(body string) (map[string]interface{}, error) {
+func (z *Zabbix) ZRequest(body []byte) (map[string]interface{}, error) {
 	//Wrapper to call request as a class method
 	return ZApiRequest(&z.ApiUrl , body)
 }
 
-func buildRequest(url *string, body string) (*http.Request , error) {
-	req, err := http.NewRequest(http.MethodPost, *url, bytes.NewBuffer([]byte(body)))
+func buildRequest(url *string, body []byte) (*http.Request , error) {
+	req, err := http.NewRequest(http.MethodPost, *url, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json-rpc")
 	return req, err
 }
@@ -42,7 +42,7 @@ func parseResponse(resp *http.Response) (map[string]interface{}, error) {
 	return dat, err
 }
 
-func ZApiRequest(url *string, body string) (map[string]interface{},error) {
+func ZApiRequest(url *string, body []byte) (map[string]interface{},error) {
 	var data map[string]interface{}
 	req, err := buildRequest(url,body)
 	if err != nil {
@@ -54,4 +54,8 @@ func ZApiRequest(url *string, body string) (map[string]interface{},error) {
 	}
 	data, err = parseResponse(resp)
 	return data , err
+}
+
+func (z *Zabbix) MakeBody(method string, params map[string]interface{}) ([]byte,error) {
+	return json.Marshal(ApiBody{Method: method, Jsonrpc:"2.0", Auth:z.Auth, Id:z.AuthId, Params:params})
 }
