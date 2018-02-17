@@ -4,11 +4,13 @@ import (
 	"gozapi/zabbix"
 )
 
-func (u *User) Login(z *zabbix.Zabbix, creds zabbix.Creds) (map[string]interface{},error) {
-	b, err := z.MakeBody("user.login", map[string]interface{}{"user":creds.User, "password":creds.Password})
-	au, err := z.ZRequest(b)
-	if au["result"] != nil {
-		z.Auth = au["result"].(string)
+func (u *User) Login(z *zabbix.Zabbix, creds LoginParams) (map[string]interface{},error) {
+	b, err := z.MakeBody("user.login", creds)
+	resp, err := z.ZRequest(b)
+	if resp["result"] != nil {
+		if !creds.UserData {
+			z.Auth = resp["result"].(string)
+		}
 	}
-	return au , err
+	return resp , err
 }

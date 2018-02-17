@@ -56,6 +56,6 @@ func ZApiRequest(url *string, body []byte) (map[string]interface{},error) {
 	return data , err
 }
 
-func (z *Zabbix) MakeBody(method string, params map[string]interface{}) ([]byte,error) {
+func (z *Zabbix) MakeBody(method string, params interface{}) ([]byte,error) {
 	return json.Marshal(ApiBody{Method: method, Jsonrpc:"2.0", Auth:z.Auth, Id:z.AuthId, Params:params})
 }
